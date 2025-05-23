@@ -1,0 +1,125 @@
+<% provide :heading_title, t('.sub_title', name: current_data_mart_version.name)  %>
+<% provide :breadcrumbs do %>
+  <%=
+    breadcrumbs(
+      link_to(content_tag(:i, nil, class: 'fas fa-home d-block'), root_path),
+      link_to(content_tag(:span, t('.breadcrumb_providers_data_marts')), data_marts_path),
+      link_to(content_tag(:span, current_data_mart_version.name), show_data_mart_path(current_data_mart, version: current_data_mart_version.code)),
+      t('.breadcrumb_compare')
+    )
+  %>
+<% end %>
+
+<div class="row">
+  <div class="col">
+    <div class="card mb-4">
+      <h6 class="card-header with-elements">
+        <span class="card-header-title"><%= t('.comparison_title') %></span>
+      </h6>
+
+      <div class="card-body">
+        <div class="legend-container">
+          <div class="legend-item">
+            <i class="far fa-check-circle text-success"></i>
+            <span><%= t('.legend_match') %></span>
+          </div>
+          <div class="legend-item">
+            <i class="far fa-question-circle text-warning"></i>
+            <span><%= t('.legend_partial_match') %></span>
+          </div>
+          <div class="legend-item">
+            <i class="far fa-times-circle text-danger"></i>
+            <span><%= t('.legend_missing') %></span>
+          </div>
+        </div>
+      </div>
+
+      <h6 class="card-header with-elements">
+        <%= t('.comparison_note') %>
+      </h6>
+    </div>
+  </div>
+</div>
+
+
+<div class="row">
+
+  <div class="col-md-6">
+    <div class="card mb-4">
+
+      <h6 class="card-header with-elements">
+        <span class="card-header-title">
+          <%= t('.version_code', code: current_data_mart_version.code) %>
+          (<%= current_data_mart.mnemonic %>)
+          <small><%= t('.from', date: current_data_mart_version.published_at_human) %></small>
+        </span>
+      </h6>
+
+      <div class="card-body">
+        <div class="js2tree-container mx-n4 my-n4 p-4">
+
+          <div class="mb-4">
+            <div class="input-group mr-sm-2 mb-sm-0">
+              <div class="input-group-prepend "><div class="input-group-text"><i class="fas fa-search"></i></div></div>
+              <input type="text" class="js2tree-search form-control" placeholder="<%= t('.search_placeholder') %>">
+            </div>
+          </div>
+
+          <div class="js2tree"
+               data-js2tree-url="<%= tree_nodes_path %>"
+               data-js2tree-opts="<%= {context: :compare_podd, data_mart_id: current_data_mart.id, code: current_data_mart_version.code}.to_json %>"
+               data-js2tree-plugins="types search"
+               class="bg-transparent" style="">
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div class="col-md-6">
+    <div class="card mb-4">
+
+      <h6 class="card-header with-elements">
+        <span class="card-header-title">
+          <%= t('.version_podd') %> <small><%= t('.from', date: l( current_data_mart.changes_count_updated_at, format: :with_time)) %></small>
+          <small class="ml-5">( <%= current_data_mart.data_marts_information_schemas.size %> )</small>
+          <% if policy(current_data_mart).compare_podd_update? %>
+            <% if request.post? %>
+              <button class="btn btn-xs btn-link ml-auto" disabled="true"><%= t('.compare_podd_button') %></button>
+            <% else %>
+              <%= form_with url: compare_podd_update_data_mart_path(current_data_mart, version: current_data_mart_version.code), method: :patch, local: true do |f| %>
+                <%= f.submit t('.compare_podd_button'), class: 'btn text-size-reset btn-link ' %>
+              <% end %>
+            <% end %>
+          <% end %>
+        </span>
+      </h6>
+
+      <div class="card-body">
+        <div class="js2tree-container mx-n4 my-n4 p-4">
+
+          <div class="mb-4">
+            <div class="input-group mr-sm-2 mb-sm-0">
+              <div class="input-group-prepend "><div class="input-group-text"><i class="fas fa-search"></i></div></div>
+              <input type="text" class="js2tree-search form-control" placeholder="<%= t('.search_placeholder') %>" id="jstree-search">
+            </div>
+          </div>
+
+          <div class="js2tree"
+               data-js2tree-url="<%= tree_nodes_path %>"
+               data-js2tree-opts="<%= { context: :compare_podd_podm, data_mart_id: current_data_mart.id, code: '4.0'}.to_json %>"
+               data-js2tree-plugins="types search"
+               class="bg-transparent" style="">
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
