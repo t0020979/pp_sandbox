@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 class Tree::Strategy::ComparePodd::DataMartTableSerializer < Tree::Strategy::DataMartTableSerializer
+  attributes :children
 
   def text
     @object.tech_name.upcase
@@ -14,9 +15,12 @@ class Tree::Strategy::ComparePodd::DataMartTableSerializer < Tree::Strategy::Dat
     false
   end
 
-  # @todo - оптимизировать проверки на сравнение состояния (в модель)
   def type
     "attr_circle_#{@object.compare_podd_status.to_s}".to_sym
+  end
+
+  def children
+    children_hash
   end
 
   protected

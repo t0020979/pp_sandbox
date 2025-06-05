@@ -1,5 +1,27 @@
 # frozen_string_literal: true
 
+# == Schema Information
+#
+# Table name: data_marts_information_schemas
+#
+#  id              :bigint           not null, primary key
+#  column_name     :string
+#  constraint_type :string
+#  data_type       :string
+#  table_name      :string
+#  table_schema    :string
+#  created_at      :datetime         not null
+#  updated_at      :datetime         not null
+#  data_mart_id    :bigint
+#
+# Indexes
+#
+#  index_data_marts_information_schemas_on_data_mart_id  (data_mart_id)
+#
+# Foreign Keys
+#
+#  fk_rails_...  (data_mart_id => data_marts.id)
+#
 class DataMarts::InformationSchema < ApplicationRecord
   belongs_to :data_mart
 
@@ -12,20 +34,5 @@ class DataMarts::InformationSchema < ApplicationRecord
 
   def unique_key
     @unique_key ||= self.slice(*UNIQUE_KEYS).values
-  end
-
-  def self.grouped_as_hash
-    pluck('table_schema', 'table_name', 'column_name', 'data_type', 'constraint_type')
-      .then do |records|
-      records.group_by(&:first)
-             .transform_values do |tables|
-        tables.group_by(&:second)
-              .transform_values do |cols|
-          cols.map { |_schema, _table, col, type, constraint|
-            { column_name: col, data_type: type, constraint_type: constraint }
-          }
-        end
-      end
-    end
   end
 end

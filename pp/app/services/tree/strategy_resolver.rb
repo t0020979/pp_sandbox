@@ -1,11 +1,10 @@
 # frozen_string_literal: true
 
-class Tree::StrategyResolver < ::Nsud::Essentials::ApplicationService
+class Tree::StrategyResolver < Tree::Base
 
   def initialize(params, &policy_scoper)
-    @params = params
+    super
     @context = params[:context]&.to_sym
-    @policy_scoper = policy_scoper
   end
 
   def call
@@ -14,18 +13,24 @@ class Tree::StrategyResolver < ::Nsud::Essentials::ApplicationService
       Tree::ComparePodd::StrategyResolver.call(params, &policy_scoper)
     when :compare_podd_podm
       Tree::ComparePoddPodm::StrategyResolver.call(params, &policy_scoper)
+    when :cached
+      Tree::Cached::StrategyResolver.call(params, &policy_scoper)
     else
-      resolve_node
+      resolve_empty_node
     end
   end
 
   private
 
-  attr_reader :params, :context, :policy_scoper
+  attr_reader :context
 
-  def resolve_node
-    policy_scoper.call(Organization)
+  def resolve_empty_node
+    resolve_empty_policy
 
     Tree::BaseService.empty_nodes
+  end
+
+  def resolve_empty_policy
+    policy_scope(Organization)
   end
 end
