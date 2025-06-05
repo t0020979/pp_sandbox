@@ -1,19 +1,14 @@
 # frozen_string_literal: true
-class Tree::BaseService < ::Nsud::Essentials::ApplicationService
+class Tree::BaseService < Tree::Base
 
   def initialize(params, &policy_scoper)
-    @params = params
-    @policy_scoper = policy_scoper
+    super
     @parent_id = params[:parent_id]&.to_s
   end
 
   private
 
-  attr_reader :params, :policy_scoper, :parent_id
-
-  def policy_scope(scope)
-    policy_scoper.call(scope)
-  end
+  attr_reader :parent_id
 
   def safe_params(*keys)
     params.slice(*keys).permit!.to_h
@@ -36,8 +31,8 @@ class Tree::BaseService < ::Nsud::Essentials::ApplicationService
   end
 
   class << self
-    def empty_nodes
-      [{ id: '0', text: I18n.t('jstree.no_one_element'), type: "attr_warning" }]
+    def empty_nodes(text: nil, type: nil)
+      [{ id: '0', text: text || I18n.t('jstree.no_one_element'), type: type || "attr_warning" }]
     end
 
     def placeholder_nodes
